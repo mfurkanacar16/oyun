@@ -1,87 +1,340 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mesila'nın Oyunu 💘</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suprizzz | Menü</title>
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: linear-gradient(to bottom, #a18cd1, #fbc2eb);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      text-align: center;
+    :root{
+      --ink:#1b1b1b;
+      --paper: rgba(255,255,255,0.88);
+      --paper2: rgba(255,255,255,0.72);
+      --stroke: rgba(0,0,0,0.10);
+
+      --pink:#ff6fae;
+      --pink2:#ff9ac7;
+      --purple:#8a6bff;
+      --blue:#57c7ff;
+
+      --shadow: 0 18px 48px rgba(0,0,0,0.18);
+      --px: 4px; /* pixel radius hissi */
     }
 
-    .menu {
-      width: 90%;
-      max-width: 400px;
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      color: var(--ink);
+      overflow:hidden;
+      background:#000;
     }
 
-    h1 {
-      font-size: 2.2rem;
-      margin-bottom: 30px;
+    /* Arka plan (şimdilik senin görsel) */
+    .bg{
+      position:fixed;
+      inset:0;
+      background-image: url("assets/menu-bg.png");
+      background-size: cover;
+      background-position: center;
+      filter: saturate(1.05) contrast(1.03);
+      transform: scale(1.02);
+      z-index:0;
     }
 
-    button {
-      width: 100%;
-      padding: 15px;
-      margin: 10px 0;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: bold;
-      color: #ff4b6e;
+    /* Cute overlay (anime/pastel vibe) */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(900px 520px at 30% 25%, rgba(255,111,174,0.22), transparent 60%),
+        radial-gradient(900px 520px at 75% 35%, rgba(138,107,255,0.18), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,0.18), rgba(0,0,0,0.25));
+      z-index:1;
     }
 
-    button:hover {
-      transform: scale(1.03);
+    /* Pixel grid overlay (çok hafif) */
+    .pixelGrid{
+      position:fixed;
+      inset:0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 18px 18px;
+      mix-blend-mode: overlay;
+      opacity: 0.25;
+      z-index:2;
+      pointer-events:none;
     }
 
-    #infoBox {
-      margin-top: 20px;
-      font-size: 1rem;
-      padding: 15px;
-      border-radius: 15px;
-      display: none;
-      background: rgba(255,255,255,0.2);
+    .wrap{
+      position:relative;
+      z-index:3;
+      height:100%;
+      display:grid;
+      place-items:center;
+      padding:18px;
+    }
+
+    /* Pixel panel */
+    .panel{
+      width:min(92vw, 520px);
+      padding: 18px 16px 16px;
+      background: linear-gradient(180deg, var(--paper), var(--paper2));
+      box-shadow: var(--shadow);
+      position:relative;
+
+      /* Pixel border */
+      border: 2px solid rgba(0,0,0,0.18);
+      border-radius: 16px;
+      image-rendering: pixelated;
+
+      transform: translateY(10px);
+      opacity:0;
+      animation: enter 650ms ease forwards;
+    }
+    @keyframes enter{ to{ transform: translateY(0); opacity:1; } }
+
+    /* Pixel corner dots */
+    .panel::before{
+      content:"";
+      position:absolute;
+      inset:-6px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 12px 12px, rgba(255,111,174,0.55), transparent 35%),
+        radial-gradient(circle at calc(100% - 12px) 12px, rgba(87,199,255,0.45), transparent 35%),
+        radial-gradient(circle at 12px calc(100% - 12px), rgba(138,107,255,0.45), transparent 35%),
+        radial-gradient(circle at calc(100% - 12px) calc(100% - 12px), rgba(255,154,199,0.45), transparent 35%);
+      filter: blur(0.2px);
+      z-index:-1;
+    }
+
+    .topRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .logo{
+      width:40px;
+      height:40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(255,111,174,0.95), rgba(138,107,255,0.92));
+      color:#fff;
+      font-weight:900;
+      display:grid;
+      place-items:center;
+      box-shadow: 0 10px 22px rgba(138,107,255,0.22);
+      border: 2px solid rgba(0,0,0,0.12);
+      letter-spacing:0.5px;
+    }
+
+    .titleBox{
+      text-align:left;
+      line-height:1.15;
+    }
+    .title{
+      font-size: 1.25rem;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+    }
+    .subtitle{
+      margin-top:4px;
+      font-size: 0.92rem;
+      opacity:0.78;
+    }
+
+    /* Pixel chip */
+    .chip{
+      user-select:none;
+      cursor:pointer;
+      padding:10px 12px;
+      border-radius: 12px;
+      border: 2px solid rgba(0,0,0,0.12);
+      background: rgba(255,255,255,0.85);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.10);
+      font-weight: 800;
+      font-size: 0.92rem;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .chip:active{ transform: translateY(1px); }
+
+    .desc{
+      margin: 6px 0 14px;
+      font-size: 1.02rem;
+      line-height:1.35;
+      opacity:0.9;
+    }
+
+    /* Pixel button */
+    .btn{
+      width:100%;
+      border:0;
+      padding: 14px 14px;
+      cursor:pointer;
+      font-weight: 900;
+      font-size: 1.05rem;
+      border-radius: 14px;
+      border: 2px solid rgba(0,0,0,0.18);
+      box-shadow: 0 12px 0 rgba(0,0,0,0.18);
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .06s ease;
+      user-select:none;
+    }
+    .btn:active{
+      transform: translateY(6px);
+      box-shadow: 0 6px 0 rgba(0,0,0,0.18);
+    }
+
+    .btn.primary{
+      background: linear-gradient(90deg, var(--pink), var(--purple));
+      color:#fff;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .btn.ghost{
+      background: rgba(255,255,255,0.85);
+      color: var(--ink);
+    }
+
+    .footer{
+      margin-top: 12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-size:0.9rem;
+      opacity:0.78;
+      flex-wrap:wrap;
+    }
+
+    .tag{
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 2px solid rgba(0,0,0,0.10);
+      background: rgba(255,255,255,0.80);
+      font-weight: 800;
+    }
+
+    /* Mobil */
+    @media (max-width: 360px){
+      .grid2{ grid-template-columns:1fr; }
+      .panel{ padding: 16px 14px; }
     }
   </style>
 </head>
 
 <body>
-  <div class="menu">
-    <h1>🎮 Mesila'ya Özel Oyun</h1>
+  <div class="bg"></div>
+  <div class="overlay"></div>
+  <div class="pixelGrid"></div>
 
-    <button onclick="startGame()">Oyna 💖</button>
-    <button onclick="showHow()">Nasıl Oynanır? 📖</button>
-    <button onclick="showAbout()">Hakkında 💌</button>
+  <audio id="bgm" src="assets/bgm.mp3" loop preload="auto"></audio>
 
-    <div id="infoBox"></div>
+  <div class="wrap">
+    <div class="panel">
+      <div class="topRow">
+        <div class="brand">
+          <div class="logo">★</div>
+          <div class="titleBox">
+            <div class="title">Suprizzz</div>
+            <div class="subtitle">Chibi Pixel Arena</div>
+          </div>
+        </div>
+
+        <div class="chip" id="musicChip">🎵 AÇIK</div>
+      </div>
+
+      <div class="desc">
+        Küçük büyücü hazır. Elf de hazır. <br>
+        Taşa takılmak <b>yasak</b> 😄
+      </div>
+
+      <button class="btn primary" id="startBtn">BAŞLA 🎮</button>
+
+      <div class="grid2">
+        <button class="btn ghost" id="charBtn">Karakter 🧙‍♀️</button>
+        <button class="btn ghost" id="howBtn">Nasıl Oynanır ❓</button>
+      </div>
+
+      <div class="footer">
+        <div class="tag">Mobil: Parmağınla sürükle</div>
+        <div class="tag">Saldırı: Dokun / Space</div>
+      </div>
+    </div>
   </div>
 
   <script>
-    function startGame() {
+    const bgm = document.getElementById("bgm");
+    const musicChip = document.getElementById("musicChip");
+    const startBtn = document.getElementById("startBtn");
+    const charBtn = document.getElementById("charBtn");
+    const howBtn = document.getElementById("howBtn");
+
+    let musicOn = localStorage.getItem("musicOn");
+    if(musicOn === null) musicOn = "true";
+    musicOn = (musicOn === "true");
+
+    function updateMusic(){
+      musicChip.textContent = musicOn ? "🎵 AÇIK" : "🎵 KAPALI";
+    }
+    updateMusic();
+
+    async function tryPlay(){
+      if(!musicOn) return;
+      try{
+        bgm.volume = 0.35;
+        await bgm.play();
+      }catch(e){}
+    }
+
+    // bazen çalışır
+    tryPlay();
+
+    musicChip.addEventListener("click", async () => {
+      musicOn = !musicOn;
+      localStorage.setItem("musicOn", String(musicOn));
+      updateMusic();
+      if(musicOn) await tryPlay();
+      else bgm.pause();
+      try{ navigator.vibrate?.(20); }catch(e){}
+    });
+
+    startBtn.addEventListener("click", async () => {
+      await tryPlay(); // mobilde garanti
+      try{ navigator.vibrate?.(25); }catch(e){}
       window.location.href = "game.html";
-    }
+    });
 
-    function showHow() {
-      const box = document.getElementById("infoBox");
-      box.style.display = "block";
-      box.innerHTML = "Kalpleri topla 💘 Skor 14 olunca sürpriz var!";
-    }
+    charBtn.addEventListener("click", () => {
+      alert("Şimdilik tek karakter var: Chibi büyücü 😄\nKarakter seçimi sayfasını birazdan yaparız.");
+    });
 
-    function showAbout() {
-      const box = document.getElementById("infoBox");
-      box.style.display = "block";
-      box.innerHTML = "Bu oyun Mesila için 14 Şubat'a özel yapıldı 😌💕";
-    }
+    howBtn.addEventListener("click", () => {
+      alert(
+        "Kontroller:\\n" +
+        "• Mobil: Parmağını sürükleyerek hareket\\n" +
+        "• PC: WASD / Ok tuşları\\n" +
+        "• Saldırı: Ekrana dokun / Space\\n\\n" +
+        "Taşa takılırsan: 'vay enayi' + 1 can gider 😭"
+      );
+    });
   </script>
 </body>
 </html>
