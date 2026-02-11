@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mesila'nın Oyunu 💘</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: linear-gradient(to bottom, #a18cd1, #fbc2eb);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-align: center;
+    }
+
+    .menu {
+      width: 90%;
+      max-width: 400px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 30px;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #ff4b6e;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+    }
+
+    #infoBox {
+      margin-top: 20px;
+      font-size: 1rem;
+      padding: 15px;
+      border-radius: 15px;
+      display: none;
+      background: rgba(255,255,255,0.2);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="menu">
+    <h1>🎮 Mesila'ya Özel Oyun</h1>
+
+    <button onclick="startGame()">Oyna 💖</button>
+    <button onclick="showHow()">Nasıl Oynanır? 📖</button>
+    <button onclick="showAbout()">Hakkında 💌</button>
+
+    <div id="infoBox"></div>
+  </div>
+
+  <script>
+    function startGame() {
+      window.location.href = "game.html";
+    }
+
+    function showHow() {
+      const box = document.getElementById("infoBox");
+      box.style.display = "block";
+      box.innerHTML = "Kalpleri topla 💘 Skor 14 olunca sürpriz var!";
+    }
+
+    function showAbout() {
+      const box = document.getElementById("infoBox");
+      box.style.display = "block";
+      box.innerHTML = "Bu oyun Mesila için 14 Şubat'a özel yapıldı 😌💕";
+    }
+  </script>
+</body>
+</html>
