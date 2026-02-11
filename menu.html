@@ -1,340 +1,168 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Suprizzz | Menü</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pixel Love Adventure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- TEMEL AYARLAR --- */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Press Start 2P', cursive;
+            background-color: #1a0f2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-  <style>
-    :root{
-      --ink:#1b1b1b;
-      --paper: rgba(255,255,255,0.88);
-      --paper2: rgba(255,255,255,0.72);
-      --stroke: rgba(0,0,0,0.10);
+        /* --- VİDEO ARKA PLAN --- */
+        #bg-video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: 1;
+            transform: translateX(-50%) translateY(-50%);
+            object-fit: cover; /* Videonun ekranı tam kaplamasını sağlar */
+        }
 
-      --pink:#ff6fae;
-      --pink2:#ff9ac7;
-      --purple:#8a6bff;
-      --blue:#57c7ff;
+        /* --- ARKA PLAN KATMANI VE OVERLAY --- */
+        .main-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2; /* Videonun üzerinde kalması için */
+        }
 
-      --shadow: 0 18px 48px rgba(0,0,0,0.18);
-      --px: 4px; /* pixel radius hissi */
-    }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Videonun üzerine hafif bir karartma ve rün mavisi parlaması ekler */
+            background: radial-gradient(circle, rgba(130, 224, 255, 0.1) 0%, rgba(20, 10, 40, 0.5) 100%);
+            z-index: 3;
+            pointer-events: none;
+        }
 
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+        /* --- MENÜ KUTUSU --- */
+        .rune-container {
+            position: relative;
+            z-index: 10;
+            width: 360px;
+            max-width: 85%;
+            padding: 35px 25px;
+            background-color: rgba(30, 20, 50, 0.9); 
+            border: 4px solid #82e0ff;
+            box-shadow: 0 0 20px rgba(130, 224, 255, 0.4), inset 0 0 15px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            animation: floatBox 4s ease-in-out infinite;
+        }
 
-    body{
-      margin:0;
-      font-family: Arial, sans-serif;
-      color: var(--ink);
-      overflow:hidden;
-      background:#000;
-    }
+        @keyframes floatBox {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
 
-    /* Arka plan (şimdilik senin görsel) */
-    .bg{
-      position:fixed;
-      inset:0;
-      background-image: url("assets/menu-bg.png");
-      background-size: cover;
-      background-position: center;
-      filter: saturate(1.05) contrast(1.03);
-      transform: scale(1.02);
-      z-index:0;
-    }
+        /* --- BUTONLAR --- */
+        .pixel-btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            padding: 15px 10px;
+            color: #fff;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: none;
+            position: relative;
+            text-shadow: 2px 2px #000;
+            transition: all 0.1s;
+            box-shadow: 4px 4px 0px #000;
+        }
 
-    /* Cute overlay (anime/pastel vibe) */
-    .overlay{
-      position:fixed;
-      inset:0;
-      background:
-        radial-gradient(900px 520px at 30% 25%, rgba(255,111,174,0.22), transparent 60%),
-        radial-gradient(900px 520px at 75% 35%, rgba(138,107,255,0.18), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,0.18), rgba(0,0,0,0.25));
-      z-index:1;
-    }
+        .pixel-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 1px 1px 0px #000;
+        }
 
-    /* Pixel grid overlay (çok hafif) */
-    .pixelGrid{
-      position:fixed;
-      inset:0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-      background-size: 18px 18px;
-      mix-blend-mode: overlay;
-      opacity: 0.25;
-      z-index:2;
-      pointer-events:none;
-    }
+        .btn-start { background-color: #7ab35a; border-bottom: 4px solid #548b3b; }
+        .btn-info { background-color: #82e0ff; border-bottom: 4px solid #4da6ff; color: #1a1a2e; text-shadow: none; }
+        .btn-note { background-color: #d95763; border-bottom: 4px solid #ac3232; }
+        .btn-exit { background-color: #3f3f74; border-bottom: 4px solid #222252; opacity: 0.8; }
 
-    .wrap{
-      position:relative;
-      z-index:3;
-      height:100%;
-      display:grid;
-      place-items:center;
-      padding:18px;
-    }
+        /* --- MOBİL UYARI --- */
+        #rotate-warning {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #1a1a2e;
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #82e0ff;
+            text-align: center;
+        }
 
-    /* Pixel panel */
-    .panel{
-      width:min(92vw, 520px);
-      padding: 18px 16px 16px;
-      background: linear-gradient(180deg, var(--paper), var(--paper2));
-      box-shadow: var(--shadow);
-      position:relative;
+        @keyframes rotateAnim {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-90deg); }
+            100% { transform: rotate(0deg); }
+        }
 
-      /* Pixel border */
-      border: 2px solid rgba(0,0,0,0.18);
-      border-radius: 16px;
-      image-rendering: pixelated;
-
-      transform: translateY(10px);
-      opacity:0;
-      animation: enter 650ms ease forwards;
-    }
-    @keyframes enter{ to{ transform: translateY(0); opacity:1; } }
-
-    /* Pixel corner dots */
-    .panel::before{
-      content:"";
-      position:absolute;
-      inset:-6px;
-      border-radius: 18px;
-      background:
-        radial-gradient(circle at 12px 12px, rgba(255,111,174,0.55), transparent 35%),
-        radial-gradient(circle at calc(100% - 12px) 12px, rgba(87,199,255,0.45), transparent 35%),
-        radial-gradient(circle at 12px calc(100% - 12px), rgba(138,107,255,0.45), transparent 35%),
-        radial-gradient(circle at calc(100% - 12px) calc(100% - 12px), rgba(255,154,199,0.45), transparent 35%);
-      filter: blur(0.2px);
-      z-index:-1;
-    }
-
-    .topRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:12px;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-
-    .logo{
-      width:40px;
-      height:40px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, rgba(255,111,174,0.95), rgba(138,107,255,0.92));
-      color:#fff;
-      font-weight:900;
-      display:grid;
-      place-items:center;
-      box-shadow: 0 10px 22px rgba(138,107,255,0.22);
-      border: 2px solid rgba(0,0,0,0.12);
-      letter-spacing:0.5px;
-    }
-
-    .titleBox{
-      text-align:left;
-      line-height:1.15;
-    }
-    .title{
-      font-size: 1.25rem;
-      font-weight: 900;
-      letter-spacing: 0.4px;
-    }
-    .subtitle{
-      margin-top:4px;
-      font-size: 0.92rem;
-      opacity:0.78;
-    }
-
-    /* Pixel chip */
-    .chip{
-      user-select:none;
-      cursor:pointer;
-      padding:10px 12px;
-      border-radius: 12px;
-      border: 2px solid rgba(0,0,0,0.12);
-      background: rgba(255,255,255,0.85);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.10);
-      font-weight: 800;
-      font-size: 0.92rem;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .chip:active{ transform: translateY(1px); }
-
-    .desc{
-      margin: 6px 0 14px;
-      font-size: 1.02rem;
-      line-height:1.35;
-      opacity:0.9;
-    }
-
-    /* Pixel button */
-    .btn{
-      width:100%;
-      border:0;
-      padding: 14px 14px;
-      cursor:pointer;
-      font-weight: 900;
-      font-size: 1.05rem;
-      border-radius: 14px;
-      border: 2px solid rgba(0,0,0,0.18);
-      box-shadow: 0 12px 0 rgba(0,0,0,0.18);
-      -webkit-tap-highlight-color: transparent;
-      transition: transform .06s ease;
-      user-select:none;
-    }
-    .btn:active{
-      transform: translateY(6px);
-      box-shadow: 0 6px 0 rgba(0,0,0,0.18);
-    }
-
-    .btn.primary{
-      background: linear-gradient(90deg, var(--pink), var(--purple));
-      color:#fff;
-    }
-
-    .grid2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      margin-top:10px;
-    }
-
-    .btn.ghost{
-      background: rgba(255,255,255,0.85);
-      color: var(--ink);
-    }
-
-    .footer{
-      margin-top: 12px;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      font-size:0.9rem;
-      opacity:0.78;
-      flex-wrap:wrap;
-    }
-
-    .tag{
-      padding: 8px 10px;
-      border-radius: 12px;
-      border: 2px solid rgba(0,0,0,0.10);
-      background: rgba(255,255,255,0.80);
-      font-weight: 800;
-    }
-
-    /* Mobil */
-    @media (max-width: 360px){
-      .grid2{ grid-template-columns:1fr; }
-      .panel{ padding: 16px 14px; }
-    }
-  </style>
+        @media only screen and (orientation: portrait) {
+            #rotate-warning { display: flex; }
+            .main-content { display: none; }
+            #bg-video { display: none; }
+        }
+    </style>
 </head>
-
 <body>
-  <div class="bg"></div>
-  <div class="overlay"></div>
-  <div class="pixelGrid"></div>
 
-  <audio id="bgm" src="assets/bgm.mp3" loop preload="auto"></audio>
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="menu.bg.mp4" type="video/mp4">
+        Tarayıcınız video etiketini desteklemiyor.
+    </video>
 
-  <div class="wrap">
-    <div class="panel">
-      <div class="topRow">
-        <div class="brand">
-          <div class="logo">★</div>
-          <div class="titleBox">
-            <div class="title">Suprizzz</div>
-            <div class="subtitle">Chibi Pixel Arena</div>
-          </div>
-        </div>
-
-        <div class="chip" id="musicChip">🎵 AÇIK</div>
-      </div>
-
-      <div class="desc">
-        Küçük büyücü hazır. Elf de hazır. <br>
-        Taşa takılmak <b>yasak</b> 😄
-      </div>
-
-      <button class="btn primary" id="startBtn">BAŞLA 🎮</button>
-
-      <div class="grid2">
-        <button class="btn ghost" id="charBtn">Karakter 🧙‍♀️</button>
-        <button class="btn ghost" id="howBtn">Nasıl Oynanır ❓</button>
-      </div>
-
-      <div class="footer">
-        <div class="tag">Mobil: Parmağınla sürükle</div>
-        <div class="tag">Saldırı: Dokun / Space</div>
-      </div>
+    <div id="rotate-warning">
+        <div style="font-size: 50px; animation: rotateAnim 2s infinite;">📱</div>
+        <p style="padding: 20px; font-size: 12px; line-height: 2;">BÜYÜLÜ ORMANI GÖRMEK İÇİN<br>TELEFONU YAN ÇEVİR</p>
     </div>
-  </div>
 
-  <script>
-    const bgm = document.getElementById("bgm");
-    const musicChip = document.getElementById("musicChip");
-    const startBtn = document.getElementById("startBtn");
-    const charBtn = document.getElementById("charBtn");
-    const howBtn = document.getElementById("howBtn");
+    <div class="main-content">
+        <div class="overlay"></div>
 
-    let musicOn = localStorage.getItem("musicOn");
-    if(musicOn === null) musicOn = "true";
-    musicOn = (musicOn === "true");
+        <div class="rune-container">
+            <div style="color: #82e0ff; font-size: 10px; margin-bottom: 10px; text-align: center;">--- ᛫ ᚱ ᚢ ᚾ ᛖ ᛫ ---</div>
 
-    function updateMusic(){
-      musicChip.textContent = musicOn ? "🎵 AÇIK" : "🎵 KAPALI";
-    }
-    updateMusic();
+            <button class="pixel-btn btn-start" onclick="startGame()">MACERAYA BAŞLA</button>
+            <button class="pixel-btn btn-info" onclick="openInfo()">NEDİR BU?</button>
+            <button class="pixel-btn btn-note" onclick="openNote()">SANA NOTUM</button>
+            <button class="pixel-btn btn-exit" onclick="quitGame()">AYRIL</button>
+            
+            <div style="text-align: center; margin-top: 10px; font-size: 8px; color: #82e0ff; opacity: 0.6;">v1.0 - Magic Edition</div>
+        </div>
+    </div>
 
-    async function tryPlay(){
-      if(!musicOn) return;
-      try{
-        bgm.volume = 0.35;
-        await bgm.play();
-      }catch(e){}
-    }
-
-    // bazen çalışır
-    tryPlay();
-
-    musicChip.addEventListener("click", async () => {
-      musicOn = !musicOn;
-      localStorage.setItem("musicOn", String(musicOn));
-      updateMusic();
-      if(musicOn) await tryPlay();
-      else bgm.pause();
-      try{ navigator.vibrate?.(20); }catch(e){}
-    });
-
-    startBtn.addEventListener("click", async () => {
-      await tryPlay(); // mobilde garanti
-      try{ navigator.vibrate?.(25); }catch(e){}
-      window.location.href = "game.html";
-    });
-
-    charBtn.addEventListener("click", () => {
-      alert("Şimdilik tek karakter var: Chibi büyücü 😄\nKarakter seçimi sayfasını birazdan yaparız.");
-    });
-
-    howBtn.addEventListener("click", () => {
-      alert(
-        "Kontroller:\\n" +
-        "• Mobil: Parmağını sürükleyerek hareket\\n" +
-        "• PC: WASD / Ok tuşları\\n" +
-        "• Saldırı: Ekrana dokun / Space\\n\\n" +
-        "Taşa takılırsan: 'vay enayi' + 1 can gider 😭"
-      );
-    });
-  </script>
+    <script>
+        function startGame() { alert("Dünya yükleniyor... Pikseller canlanıyor! ✨"); }
+        function openInfo() { alert("Bu dijital dünya, senin için özel olarak kodlandı. Her rün bir sevgi mesajı taşıyor. 💙"); }
+        function openNote() { alert("Sevgilim,\n\nBu ormanın içindeki parlayan taşlar gibi, sen de benim hayatımın en parlak ışığısın. Seni çok seviyorum! 14 Şubat Kutlu Olsun."); }
+        function quitGame() { if(confirm("Büyülü dünyadan çıkmak istediğine emin misin?")) { window.close(); } }
+    </script>
 </body>
 </html>
