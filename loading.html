@@ -1,64 +1,244 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Yükleniyor...</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sürpriz Yükleniyor...</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
 
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      font-family: Arial;
-      background: linear-gradient(to bottom, #ff9a9e, #fad0c4);
-      color: white;
-      text-align: center;
-    }
+<style>
+:root{
+  --bg-gradient: linear-gradient(135deg, #ffe9ef 0%, #ffc3d3 100%);
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --text: #4a4a4a;
+  --accent: #ff3f70;
+  --accent2: #ff7aa0;
+  --shadow: rgba(255, 63, 112, 0.25);
+}
 
-    h1 {
-      font-size: 2rem;
-    }
+*{box-sizing:border-box;}
 
-    .bar {
-      width: 250px;
-      height: 20px;
-      border: 2px solid white;
-      border-radius: 20px;
-      margin-top: 20px;
-      overflow: hidden;
-    }
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background: var(--bg-gradient);
+  font-family: 'Quicksand', sans-serif;
+  color:var(--text);
+  overflow: hidden; /* Taşmaları gizle */
+  position: relative;
+}
 
-    .fill {
-      height: 100%;
-      width: 0%;
-      background: white;
-      animation: load 2.5s forwards;
-    }
+/* --- DİNAMİK KALPLER İÇİN CSS --- */
+/* Kalplerin içinde yüzeceği görünmez konteyner */
+.heart-container {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; /* Tıklamaları engelleme, arkaya geçsin */
+    z-index: 0; /* Kartın arkasında kalsın */
+}
 
-    @keyframes load {
-      to {
-        width: 100%;
-      }
+/* JS ile oluşturulacak kalplerin stili */
+.floating-heart {
+    position: absolute;
+    bottom: -10vh; /* Ekranın altından başla */
+    font-size: 20px;
+    opacity: 0.7;
+    animation: floatUp linear forwards;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.7;
     }
-  </style>
+    100% {
+        /* Ekranın tepesine kadar çık ve dön */
+        transform: translateY(-110vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+/* ---------------------------------- */
+
+
+.card{
+  width:min(85vw, 380px);
+  padding:40px 30px;
+  border-radius:30px;
+  background: var(--card-bg);
+  box-shadow: 0 20px 60px var(--shadow);
+  text-align: center;
+  position: relative;
+  z-index: 1; /* Kalplerin önünde durması için */
+  transform: translateY(0);
+  animation: floatCard 6s ease-in-out infinite;
+}
+
+/* Kartın içindeki ana kalp ikonu */
+.main-heart-icon {
+    font-size: 3rem;
+    color: var(--accent);
+    margin-bottom: 15px;
+    display: inline-block;
+    animation: heartbeat 1.2s infinite;
+}
+
+h1{
+  margin:0 0 10px;
+  font-family: 'Pacifico', cursive;
+  font-size: 1.8rem;
+  color: var(--accent);
+}
+
+.status-text{
+  margin-bottom: 25px;
+  font-size: 0.95rem;
+  color: #777;
+  height: 20px;
+  transition: opacity 0.3s;
+}
+
+/* BAR */
+.bar-container{
+  width:100%;
+  height:14px;
+  background:#ffe0e6;
+  border-radius:999px;
+  position: relative;
+  overflow: hidden; /* Taşan kalbi gizle */
+}
+
+.fill{
+  height:100%;
+  width:0%;
+  border-radius:999px;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  box-shadow: 0 0 15px var(--shadow);
+  transition: width 0.2s linear;
+  position: relative;
+}
+
+/* Barın ucundaki küçük kalp */
+.fill::after {
+    content: '❤️';
+    position: absolute;
+    right: -7px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+}
+
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    15% { transform: scale(1.15); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.15); }
+    60% { transform: scale(1); }
+}
+
+@keyframes floatCard {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+</style>
 </head>
 
 <body>
-  <h1>💖 Yükleniyor...</h1>
-  <p>Aşk hazırlanıyor Mesila için 😌</p>
 
-  <div class="bar">
-    <div class="fill"></div>
+<div class="heart-container" id="heartContainer"></div>
+
+<div class="card">
+  <div class="main-heart-icon">❤️</div>
+  <h1 id="mainTitle">Yükleniyor...</h1>
+  <div class="status-text" id="statusText">Sistem başlatılıyor...</div>
+
+  <div class="bar-container">
+    <div class="fill" id="fill"></div>
   </div>
+</div>
 
-  <script>
+<script>
+// --- DİNAMİK KALP OLUŞTURUCU ---
+const heartContainer = document.getElementById('heartContainer');
+
+function createFloatingHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('floating-heart');
+    // Farklı renklerde kalpler için dizi
+    const heartEmojis = ['❤️', '💖', '💝', '💕'];
+    heart.innerText = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+
+    // Rastgele yatay pozisyon (ekranın %0 ile %100 arası)
+    heart.style.left = Math.random() * 100 + 'vw';
+
+    // Rastgele boyut (15px ile 35px arası)
+    const size = Math.random() * 20 + 15;
+    heart.style.fontSize = size + 'px';
+
+    // Rastgele animasyon süresi (4s ile 8s arası - ne kadar sürerse o kadar yavaş çıkar)
+    const duration = Math.random() * 4 + 4;
+    heart.style.animationDuration = duration + 's';
+
+    // Rastgele gecikme (hepsi aynı anda başlamasın)
+    heart.style.animationDelay = Math.random() * 2 + 's';
+
+    heartContainer.appendChild(heart);
+
+    // Animasyon bitince (süre + gecikme kadar sonra) elemanı DOM'dan sil (Performans için önemli!)
     setTimeout(() => {
-      window.location.href = "menu.html";
-    }, 2600);
-  </script>
+        heart.remove();
+    }, (duration + 2) * 1000);
+}
+
+// Her 300 milisaniyede bir yeni kalp oluştur
+setInterval(createFloatingHeart, 300);
+
+
+// --- YÜKLEME ÇUBUĞU MANTIĞI (Önceki koddan) ---
+const fill = document.getElementById("fill");
+const statusText = document.getElementById("statusText");
+const mainTitle = document.getElementById("mainTitle");
+
+let progress = 0;
+
+const messages = [
+    { pct: 10, msg: "Güzellik katsayısı hesaplanıyor..." },
+    { pct: 30, msg: "Gülüşün sisteme yükleniyor..." },
+    { pct: 50, msg: "Tatlılık verileri işleniyor..." },
+    { pct: 70, msg: "Sabrın için teşekkürler aşkım..." },
+    { pct: 90, msg: "Neredeyse hazırız! 🚀" },
+    { pct: 100, msg: "İyi eğlenceler prenses! ❤️" }
+];
+
+// Toplam süre: 5 saniye
+const totalTime = 5000; 
+const intervalTime = 40; 
+const step = 100 / (totalTime / intervalTime);
+
+const interval = setInterval(() => {
+  progress += step;
+  if (progress > 100) progress = 100;
+  
+  fill.style.width = progress + "%";
+
+  const currentMsg = messages.find(m => progress >= m.pct && progress < m.pct + 20);
+  if (currentMsg) {
+      statusText.innerText = currentMsg.msg;
+  }
+
+  if(progress >= 100){
+    clearInterval(interval);
+    mainTitle.innerText = "Hazır!";
+    setTimeout(() => {
+
+      console.log("Oyun başlıyor..."); 
+    }, 800);
+  }
+}, intervalTime);
+</script>
+
 </body>
 </html>
