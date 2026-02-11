@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mesila 💖</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #ffdde1, #ee9ca7);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: white;
+    }
+
+    .container {
+      max-width: 400px;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    #counter {
+      font-size: 1.3rem;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+
+    button {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 25px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      background: white;
+      color: #ff4b6e;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .footer-text {
+      margin-top: 15px;
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>💘 Mesila ile Hikayemiz</h1>
+
+    <p>8 Aralık 2025’te başladık…</p>
+
+    <div id="counter">Yükleniyor...</div>
+
+    <button onclick="goGame()">Oyuna Gir 🎮</button>
+
+    <div class="footer-text">Daha nice aylara ;) 💖</div>
+  </div>
+
+  <script>
+    // Tanışma tarihi
+    const startDate = new Date("2025-12-08T00:00:00");
+
+    function updateCounter() {
+      const now = new Date();
+      const diff = now - startDate;
+
+      if (diff < 0) {
+        document.getElementById("counter").innerHTML =
+          "Henüz başlamadı ama yakında 💖";
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      document.getElementById("counter").innerHTML =
+        `${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye 💕`;
+    }
+
+    setInterval(updateCounter, 1000);
+    updateCounter();
+
+    // Oyuna geçiş
+    function goGame() {
+      window.location.href = "loading.html";
+    }
+  </script>
+</body>
+</html>
