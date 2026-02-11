@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yükleniyor...</title>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      font-family: Arial;
+      background: linear-gradient(to bottom, #ff9a9e, #fad0c4);
+      color: white;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    .bar {
+      width: 250px;
+      height: 20px;
+      border: 2px solid white;
+      border-radius: 20px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      width: 0%;
+      background: white;
+      animation: load 2.5s forwards;
+    }
+
+    @keyframes load {
+      to {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>💖 Yükleniyor...</h1>
+  <p>Aşk hazırlanıyor Mesila için 😌</p>
+
+  <div class="bar">
+    <div class="fill"></div>
+  </div>
+
+  <script>
+    setTimeout(() => {
+      window.location.href = "menu.html";
+    }, 2600);
+  </script>
+</body>
+</html>
