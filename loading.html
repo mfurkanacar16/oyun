@@ -27,42 +27,31 @@ body{
   background: var(--bg-gradient);
   font-family: 'Quicksand', sans-serif;
   color:var(--text);
-  overflow: hidden; /* Taşmaları gizle */
+  overflow: hidden;
   position: relative;
 }
 
-/* --- DİNAMİK KALPLER İÇİN CSS --- */
-/* Kalplerin içinde yüzeceği görünmez konteyner */
+/* --- DİNAMİK KALPLER (Arka plan) --- */
 .heart-container {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; /* Tıklamaları engelleme, arkaya geçsin */
-    z-index: 0; /* Kartın arkasında kalsın */
+    pointer-events: none;
+    z-index: 0;
 }
 
-/* JS ile oluşturulacak kalplerin stili */
 .floating-heart {
     position: absolute;
-    bottom: -10vh; /* Ekranın altından başla */
-    font-size: 20px;
+    bottom: -10vh;
     opacity: 0.7;
     animation: floatUp linear forwards;
 }
 
 @keyframes floatUp {
-    0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 0.7;
-    }
-    100% {
-        /* Ekranın tepesine kadar çık ve dön */
-        transform: translateY(-110vh) rotate(360deg);
-        opacity: 0;
-    }
+    0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+    100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
 }
-/* ---------------------------------- */
 
-
+/* --- KART TASARIMI --- */
 .card{
   width:min(85vw, 380px);
   padding:40px 30px;
@@ -71,12 +60,10 @@ body{
   box-shadow: 0 20px 60px var(--shadow);
   text-align: center;
   position: relative;
-  z-index: 1; /* Kalplerin önünde durması için */
-  transform: translateY(0);
+  z-index: 1;
   animation: floatCard 6s ease-in-out infinite;
 }
 
-/* Kartın içindeki ana kalp ikonu */
 .main-heart-icon {
     font-size: 3rem;
     color: var(--accent);
@@ -93,7 +80,7 @@ h1{
 }
 
 .status-text{
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   font-size: 0.95rem;
   color: #777;
   height: 20px;
@@ -107,7 +94,8 @@ h1{
   background:#ffe0e6;
   border-radius:999px;
   position: relative;
-  overflow: hidden; /* Taşan kalbi gizle */
+  overflow: hidden;
+  margin-bottom: 20px; /* Alttaki uyarı yazısı için boşluk */
 }
 
 .fill{
@@ -120,7 +108,6 @@ h1{
   position: relative;
 }
 
-/* Barın ucundaki küçük kalp */
 .fill::after {
     content: '❤️';
     position: absolute;
@@ -128,6 +115,15 @@ h1{
     top: 50%;
     transform: translateY(-50%);
     font-size: 12px;
+}
+
+/* --- HİLE UYARISI YAZISI --- */
+.cheat-warning {
+    font-size: 0.85rem;
+    color: var(--accent2);
+    font-weight: 700;
+    opacity: 0.8;
+    letter-spacing: 0.5px;
 }
 
 @keyframes heartbeat {
@@ -158,46 +154,35 @@ h1{
   <div class="bar-container">
     <div class="fill" id="fill"></div>
   </div>
+
+  <div class="cheat-warning">Hile yapmak yasak 🙃</div>
 </div>
 
 <script>
-// --- DİNAMİK KALP OLUŞTURUCU ---
+// --- KALPLER (Önceki kodun aynısı) ---
 const heartContainer = document.getElementById('heartContainer');
 
 function createFloatingHeart() {
     const heart = document.createElement('div');
     heart.classList.add('floating-heart');
-    // Farklı renklerde kalpler için dizi
     const heartEmojis = ['❤️', '💖', '💝', '💕'];
     heart.innerText = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
-
-    // Rastgele yatay pozisyon (ekranın %0 ile %100 arası)
     heart.style.left = Math.random() * 100 + 'vw';
-
-    // Rastgele boyut (15px ile 35px arası)
     const size = Math.random() * 20 + 15;
     heart.style.fontSize = size + 'px';
-
-    // Rastgele animasyon süresi (4s ile 8s arası - ne kadar sürerse o kadar yavaş çıkar)
     const duration = Math.random() * 4 + 4;
     heart.style.animationDuration = duration + 's';
-
-    // Rastgele gecikme (hepsi aynı anda başlamasın)
-    heart.style.animationDelay = Math.random() * 2 + 's';
-
+    
     heartContainer.appendChild(heart);
 
-    // Animasyon bitince (süre + gecikme kadar sonra) elemanı DOM'dan sil (Performans için önemli!)
     setTimeout(() => {
         heart.remove();
-    }, (duration + 2) * 1000);
+    }, (duration + 1) * 1000);
 }
 
-// Her 300 milisaniyede bir yeni kalp oluştur
-setInterval(createFloatingHeart, 300);
+setInterval(createFloatingHeart, 400); // Biraz daha sık kalp çıksın (300 -> 400 yaptım)
 
-
-// --- YÜKLEME ÇUBUĞU MANTIĞI (Önceki koddan) ---
+// --- YÜKLEME ---
 const fill = document.getElementById("fill");
 const statusText = document.getElementById("statusText");
 const mainTitle = document.getElementById("mainTitle");
@@ -213,8 +198,7 @@ const messages = [
     { pct: 100, msg: "İyi eğlenceler prenses! ❤️" }
 ];
 
-// Toplam süre: 5 saniye
-const totalTime = 5000; 
+const totalTime = 4500; 
 const intervalTime = 40; 
 const step = 100 / (totalTime / intervalTime);
 
@@ -233,8 +217,7 @@ const interval = setInterval(() => {
     clearInterval(interval);
     mainTitle.innerText = "Hazır!";
     setTimeout(() => {
-
-      console.log("Oyun başlıyor..."); 
+      window.location.href = "menu.html"; 
     }, 800);
   }
 }, intervalTime);
