@@ -2,16 +2,19 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Forest Fight</title>
 <style>
-  body{ margin:0; overflow:hidden; background:#000; }
-  canvas{ display:block; }
+  html,body{ margin:0; height:100%; overflow:hidden; background:#000; }
+  body{ touch-action:none; } /* mobil kaydırmayı kes */
+  canvas{ display:block; width:100vw; height:100vh; }
+
   #ui{
     position:fixed; top:10px; left:10px; z-index:10;
     color:#fff; font: 18px monospace;
     background: rgba(0,0,0,0.35); padding:8px 10px; border-radius:8px;
   }
+
   #msg{
     position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
     color:#fff; font: 16px monospace; text-align:center;
@@ -19,12 +22,98 @@
     z-index:10; display:none;
     white-space: pre-line;
   }
+
+  /* === DİKEY EKRAN UYARISI === */
+  #rotateOverlay{
+    position:fixed; inset:0; z-index:999;
+    display:none;
+    background: rgba(0,0,0,0.92);
+    color:#fff;
+    font: 18px monospace;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:24px;
+  }
+  #rotateOverlay .box{
+    max-width:520px;
+    background: rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:14px;
+    padding:18px 16px;
+  }
+  #rotateOverlay .big{ font-size:42px; margin-bottom:10px; }
+  #rotateOverlay .btn{
+    margin-top:14px;
+    display:inline-block;
+    padding:10px 14px;
+    border-radius:12px;
+    background: rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.18);
+  }
+
+  /* === JOYSTICK === */
+  #joy{
+    position:fixed;
+    left:18px;
+    bottom:18px;
+    width:140px;
+    height:140px;
+    z-index:20;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:none;
+  }
+  #joyBase{
+    width:140px; height:140px;
+    border-radius:999px;
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(255,255,255,0.14);
+    box-shadow: 0 14px 35px rgba(0,0,0,0.35) inset;
+    position:relative;
+  }
+  #joyKnob{
+    width:56px; height:56px;
+    border-radius:999px;
+    background: rgba(255,255,255,0.16);
+    border: 2px solid rgba(255,255,255,0.22);
+    position:absolute;
+    left:50%; top:50%;
+    transform: translate(-50%,-50%);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.30);
+  }
+
+  /* küçük ekranda joystick küçülsün */
+  @media (max-width: 420px){
+    #joy{ width:120px; height:120px; }
+    #joyBase{ width:120px; height:120px; }
+    #joyKnob{ width:50px; height:50px; }
+  }
 </style>
 </head>
 <body>
 
 <div id="ui">Can: <span id="hp">3</span></div>
 <div id="msg"></div>
+
+<div id="rotateOverlay">
+  <div class="box">
+    <div class="big">📱↔️</div>
+    <div>OYUN YATAY OYNANIR<br>Telefonu <b>YAN</b> çevir.</div>
+    <div class="btn" id="fsBtn">Tam Ekran Aç</div>
+  </div>
+</div>
+
+<!-- Joystick -->
+<div id="joy">
+  <div id="joyBase">
+    <div id="joyKnob"></div>
+  </div>
+</div>
+
 <canvas id="game"></canvas>
 
 <script>
@@ -32,9 +121,15 @@ const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const msg = document.getElementById("msg");
 
+const rotateOverlay = document.getElementById("rotateOverlay");
+const fsBtn = document.getElementById("fsBtn");
+
 function resize(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  // canvas iç çözünürlük (DPR ile daha net)
+  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  canvas.width = Math.floor(window.innerWidth * dpr);
+  canvas.height = Math.floor(window.innerHeight * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
 }
 window.addEventListener("resize", resize);
 resize();
@@ -42,18 +137,16 @@ resize();
 let hp = 3;
 document.getElementById("hp").textContent = hp;
 
-// === ASSET PATHS (dosya adların bunlar olmalı) ===
+// === ASSET PATHS ===
 const SRC_BG     = "forest.png";
 const SRC_PLAYER = "girl.png";
 const SRC_ENEMY  = "witch.png";
-// ==============================================
 
-// Forest görselinde üst/alt siyah boşluk varsa kırp (0.0 - 0.5 arası oynat)
+// Crop istersen (şimdilik 0)
 const BG_CROP_TOP = 0.00;
 const BG_CROP_BOTTOM = 0.00;
 
-// ÇİMEN çizgisini ayarla: 0..1 (0 üst, 1 alt)
-// Senin forest’ta çimen çizgisi biraz aşağıda -> 0.78 iyi başlar
+// Çimen çizgisi (0..1). Gerekirse 0.75-0.85 arası oyna.
 let GROUND_LINE = 0.78;
 
 function loadImg(src){
@@ -88,28 +181,122 @@ async function loadAssets(){
   }
 }
 
+// ======== ORIENTATION / FULLSCREEN ========
+function isPortrait(){
+  return window.matchMedia && window.matchMedia("(orientation: portrait)").matches;
+}
+
+function updateOrientationUI(){
+  // Dikeyde oyunu gizle + uyarı göster
+  rotateOverlay.style.display = isPortrait() ? "flex" : "none";
+}
+
+async function requestFull(){
+  try{
+    // Fullscreen user gesture ister
+    const el = document.documentElement;
+    if(el.requestFullscreen) await el.requestFullscreen();
+  }catch(e){}
+
+  // Orientation lock (destek varsa)
+  try{
+    if(screen.orientation && screen.orientation.lock){
+      await screen.orientation.lock("landscape");
+    }
+  }catch(e){}
+}
+
+window.addEventListener("orientationchange", updateOrientationUI);
+window.addEventListener("resize", updateOrientationUI);
+updateOrientationUI();
+
+fsBtn.addEventListener("click", async () => {
+  await requestFull();
+});
+
+// İlk dokunuşta da tam ekran dene (kolaylık)
+document.addEventListener("pointerdown", async () => {
+  // overlay açıksa bile tıklayınca tam ekran denesin
+  await requestFull();
+}, { once:false });
+
+// ======== INPUT: KEYBOARD + JOYSTICK ========
 let keys = {};
 document.addEventListener("keydown", e=> keys[e.key]=true);
 document.addEventListener("keyup", e=> keys[e.key]=false);
 
-// saldırı (şimdilik mermi)
-document.addEventListener("click", ()=>{
-  bullets.push({
-    x: player.x + player.w*0.75,
-    y: player.y + player.h*0.55,
-    w: 22 * scale,
-    h: 7 * scale,
-    speed: 14 * scale
-  });
+// joystick vektörü (-1..1)
+let joyX = 0;
+let joyY = 0;
+
+const joy = document.getElementById("joy");
+const joyBase = document.getElementById("joyBase");
+const joyKnob = document.getElementById("joyKnob");
+
+let dragging = false;
+let baseRect = null;
+let baseCx = 0;
+let baseCy = 0;
+let baseR = 0;
+
+function refreshBase(){
+  baseRect = joyBase.getBoundingClientRect();
+  baseCx = baseRect.left + baseRect.width/2;
+  baseCy = baseRect.top + baseRect.height/2;
+  baseR  = baseRect.width/2;
+}
+window.addEventListener("resize", refreshBase);
+setTimeout(refreshBase, 50);
+
+function setKnob(px, py){
+  // px,py: base merkezine göre offset
+  const max = baseR * 0.55;
+  const len = Math.hypot(px, py) || 1;
+  const k = Math.min(1, max / len);
+  const ox = px * k;
+  const oy = py * k;
+
+  // normalize
+  joyX = ox / max;
+  joyY = oy / max;
+
+  joyKnob.style.left = "50%";
+  joyKnob.style.top  = "50%";
+  joyKnob.style.transform = `translate(calc(-50% + ${ox}px), calc(-50% + ${oy}px))`;
+}
+
+function resetJoy(){
+  dragging = false;
+  joyX = 0; joyY = 0;
+  joyKnob.style.transform = "translate(-50%,-50%)";
+}
+
+joy.addEventListener("pointerdown", (e)=>{
+  dragging = true;
+  refreshBase();
+  joy.setPointerCapture(e.pointerId);
+  const dx = e.clientX - baseCx;
+  const dy = e.clientY - baseCy;
+  setKnob(dx, dy);
 });
 
+joy.addEventListener("pointermove", (e)=>{
+  if(!dragging) return;
+  const dx = e.clientX - baseCx;
+  const dy = e.clientY - baseCy;
+  setKnob(dx, dy);
+});
+
+joy.addEventListener("pointerup", resetJoy);
+joy.addEventListener("pointercancel", resetJoy);
+
+// ======== GAME ========
 let scale = 1;
 
-// Karakter boyutu: ekrana göre
+// karakter boyutu: daha büyük aralık (mobilde de güzel)
 function computeScale(){
-  // referans 720px yükseklik = 1.0
-  const s = canvas.height / 720;
-  scale = Math.max(0.9, Math.min(1.6, s)); // daha büyük aralık
+  const s = window.innerHeight / 720;
+  scale = Math.max(1.05, Math.min(1.85, s));
 }
 
 let player = { x:120, y:0, w:180, h:180, speed:6 };
@@ -117,14 +304,13 @@ let bullets = [];
 let enemies = [];
 
 function groundY(){
-  // karakterin ayağı çimen çizgisine bassın
-  const lineY = canvas.height * GROUND_LINE;
-  return lineY - player.h; // sprite’ın altı = lineY
+  const lineY = window.innerHeight * GROUND_LINE;
+  return lineY - player.h;
 }
 
 function spawnEnemy(){
   enemies.push({
-    x: canvas.width + 80,
+    x: window.innerWidth + 80,
     y: groundY(),
     w: 180 * scale,
     h: 180 * scale,
@@ -136,7 +322,22 @@ function aabb(a,b){
   return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
 }
 
-// “cover” çizim (oran bozmadan doldurur, taşanı kırpar)
+// saldırı (tüm ekrana dokununca) — joystick’e basınca saldırmasın diye kontrol
+document.addEventListener("pointerdown", (e)=>{
+  // joystick alanındaysa saldırı yapma
+  const r = joy.getBoundingClientRect();
+  const inJoy = (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom);
+  if(inJoy) return;
+
+  bullets.push({
+    x: player.x + player.w*0.75,
+    y: player.y + player.h*0.55,
+    w: 22 * scale,
+    h: 7 * scale,
+    speed: 14 * scale
+  });
+});
+
 function drawImageCover(img, dx, dy, dw, dh, cropTop=0, cropBottom=0){
   const swFull = img.width;
   const shFull = img.height;
@@ -168,26 +369,34 @@ function showCenterMsg(text){
 function update(){
   computeScale();
 
-  // player boyut/sürat scale’e göre
-  player.w = 180 * scale;
-  player.h = 180 * scale;
-  player.speed = 6.5 * scale;
+  player.w = 190 * scale;
+  player.h = 190 * scale;
+  player.speed = 7.2 * scale;
 
   player.y = groundY();
 
-  if(keys["a"] || keys["ArrowLeft"]) player.x -= player.speed;
-  if(keys["d"] || keys["ArrowRight"]) player.x += player.speed;
+  // keyboard
+  let move = 0;
+  if(keys["a"] || keys["ArrowLeft"]) move -= 1;
+  if(keys["d"] || keys["ArrowRight"]) move += 1;
 
-  player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
+  // joystick (sol/sağ)
+  // joyX -1..1 => hareket
+  const joyMove = joyX;
+
+  const dir = (Math.abs(joyMove) > 0.08) ? joyMove : move;
+  player.x += dir * player.speed;
+
+  player.x = Math.max(0, Math.min(window.innerWidth - player.w, player.x));
 
   bullets.forEach(b=> b.x += b.speed);
-  bullets = bullets.filter(b => b.x < canvas.width + 80);
+  bullets = bullets.filter(b => b.x < window.innerWidth + 120);
 
   enemies.forEach(e=> {
-    e.y = groundY();         // zeminle beraber hizalı kalsın
+    e.y = groundY();
     e.x -= e.speed;
   });
-  enemies = enemies.filter(e => e.x > -400);
+  enemies = enemies.filter(e => e.x > -500);
 
   // bullet-enemy
   for(let ei = enemies.length-1; ei>=0; ei--){
@@ -224,13 +433,17 @@ function update(){
 }
 
 function draw(assets){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // ekran ölçüleri (CSS px)
+  const W = window.innerWidth;
+  const H = window.innerHeight;
 
-  // Forest’ı full screen cover yap (siyahlık biter)
+  ctx.clearRect(0,0,W,H);
+
+  // BG full cover
   ctx.imageSmoothingEnabled = true;
-  drawImageCover(assets.bg, 0, 0, canvas.width, canvas.height, BG_CROP_TOP, BG_CROP_BOTTOM);
+  drawImageCover(assets.bg, 0, 0, W, H, BG_CROP_TOP, BG_CROP_BOTTOM);
 
-  // Sprite’lar pixel olsun
+  // Sprite’lar pixel
   ctx.imageSmoothingEnabled = false;
 
   ctx.drawImage(assets.playerImg, player.x, player.y, player.w, player.h);
@@ -245,11 +458,14 @@ function draw(assets){
 
 (async ()=>{
   const assets = await loadAssets();
-  setInterval(spawnEnemy, 2000);
+  setInterval(spawnEnemy, 1900);
 
   function loop(){
-    update();
-    draw(assets);
+    // dikeyse update/draw yapma (boşuna)
+    if(!isPortrait()){
+      update();
+      draw(assets);
+    }
     requestAnimationFrame(loop);
   }
   loop();
